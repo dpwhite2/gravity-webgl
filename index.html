@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>Points</title>
+    <script src="lib/sylvester.js" type="text/javascript"></script>
+    <script src="lib/glUtils.js" type="text/javascript"></script>
+    <script src="lib/matrixutil.js" type="text/javascript"></script>
+    
+    <script src="gravity/sim.js" type="text/javascript"></script>
+    <script src="gravity/renderer.js" type="text/javascript"></script>
+    <script src="gravity/glcontext.js" type="text/javascript"></script>
+    <script src="gravity/app.js" type="text/javascript"></script>
+    <script src="gravity/core.js" type="text/javascript"></script>
+    
+    <script id="shader-fs" type="x-shader/x-fragment">
+    #ifdef GL_ES
+    precision highp float;
+    #endif
+  
+    varying vec4 vColor;
+    varying float starSize;
+    vec2 center = vec2(1., 1.);
+    
+    void main(void) {
+        vec2 pt = vec2(2.*gl_PointCoord[0], 2.*gl_PointCoord[1]);
+        //float step_max = min(0.7, 6.0/starSize);
+        float d = smoothstep(0., 0.4, 1.0 - distance(center, pt));
+        gl_FragColor = vColor;
+        gl_FragColor[3] = d;
+    }
+    </script>
+    
+    <script id="shader-vs" type="x-shader/x-vertex">
+    attribute vec3 aStarPosition;
+    attribute vec4 aStarColor;
+    attribute float aStarSize;
+
+    uniform mat4 uMVMatrix;
+    uniform mat4 uPMatrix;
+    varying vec4 vColor;
+    varying float starSize;
+
+    void main(void) {
+        //gl_PointSize = 8.0;
+        gl_PointSize = max(aStarSize, 3.0);
+        gl_Position = uPMatrix * uMVMatrix * vec4(aStarPosition, 1.0);
+        vColor = aStarColor;
+        starSize = aStarSize;
+    }
+    </script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    
+</head>
+<body onload="gravity_start()">
+    <canvas id="glcanvas" width="1000" height="700">
+        WebGL is required to display this content.
+    </canvas>
+    
+    <div><button id="button-reset">Reset</button></div>
+    
+    <div id="info-container">
+        <div><span>FPS:</span> <span id="fps-value">0</span><div>
+        <div><span>Stars:</span> <span id="n-stars-value">0</span></div>
+        <div><span>Zoom:</span> <span id="zoom-value">1.00</span></div>
+    </div>
+</body>
+</html>
+
