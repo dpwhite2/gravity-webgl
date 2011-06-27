@@ -111,8 +111,8 @@ function gravity_mouse_move_events(canvas) {
         if (evt.button === 0) { // left button only
             if (evt.ctrlKey) {
                 evt.preventDefault();
-                var coord = app.glcontext.client_to_world_coords(evt.clientX, evt.clientY);
-                star_creator = { client_x: evt.clientX, client_y: evt.clientY, 
+                var coord = app.glcontext.client_to_world_coords(evt.layerX, evt.layerY);
+                star_creator = { layer_x: evt.layerX, layer_y: evt.layerY, 
                                  world_x: coord[0], world_y: coord[1]};
                 //app.sim.add_star(new Star( coord[0], coord[1],  0., 0., 10.));
             } else if (evt.shiftKey) {
@@ -120,7 +120,7 @@ function gravity_mouse_move_events(canvas) {
             } else {
                 evt.preventDefault();
                 canvas.style.cursor = "move";
-                mover = { last_x: evt.clientX, last_y: evt.clientY };
+                mover = { last_x: evt.layerX, last_y: evt.layerY };
             }
         }
     }
@@ -128,16 +128,17 @@ function gravity_mouse_move_events(canvas) {
     function gravity_canvas_on_mouseup(evt) {
         if (mover) {
             canvas.style.cursor = "auto";
-            var dx = mover.last_x - evt.clientX;
-            var dy = evt.clientY - mover.last_y;
+            var dx = mover.last_x - evt.layerX;
+            var dy = evt.layerY - mover.last_y;
             app.move(dx, dy);
             mover = null;
         } else if (star_creator) {
-            var dx = evt.clientX - star_creator.client_x;
-            var dy = star_creator.client_y - evt.clientY;
+            var dx = evt.layerX - star_creator.layer_x;
+            var dy = star_creator.layer_y - evt.layerY;
             var vx = dx * 0.1;
             var vy = dy * 0.1;
-            app.sim.add_star(new Star( star_creator.world_x, star_creator.world_y,  vx, vy, 10.));
+            var m = parseInt(document.getElementById("input-mass").value);
+            app.sim.add_star(new Star( star_creator.world_x, star_creator.world_y,  vx, vy, m));
             star_creator = null;
         }
     }
@@ -152,10 +153,10 @@ function gravity_mouse_move_events(canvas) {
 
     function gravity_canvas_on_mousemove(evt) {
         if (mover) {
-            var dx = mover.last_x - evt.clientX;
-            var dy = evt.clientY - mover.last_y;
+            var dx = mover.last_x - evt.layerX;
+            var dy = evt.layerY - mover.last_y;
             app.move(dx, dy);
-            mover = { last_x: evt.clientX, last_y: evt.clientY };
+            mover = { last_x: evt.layerX, last_y: evt.layerY };
         }
     }
     
@@ -193,6 +194,17 @@ function setup_event_handlers() {
     var reset = document.getElementById("button-reset");
     reset.onclick = function() {
         app.reset_sim();
+    }
+    
+    var mass = document.getElementById("input-mass");
+    mass.onkeypress = function(evt) {
+        var c = String.fromCharCode(evt.charCode);
+        if (c === "0" || c === "1" || c === "2" || c === "3" || c === "4" ||
+            c === "6" || c === "6" || c === "7" || c === "8" || c === "9") {
+            // do nothing
+        } else {
+            evt.preventDefault();
+        }
     }
 }
 
