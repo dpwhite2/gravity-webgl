@@ -13,6 +13,7 @@ function App(canvas) {
 }
 
 App.prototype.reset_sim = function() {
+    this.glcontext.reset();
     this.sim = new Sim();
 }
 

@@ -26,10 +26,11 @@ function gravity_start() {
     }
     
     var v = 5.5;
-    var m0 = 1100.;
+    var m0 = 1000.;
     var m1 = 100.;
     var m2 = 100.;
     var mz = 2.;
+    var a = 15.;  // must be a factor of 360 (i.e. it must divide 360 without a remainder)
     //var d = 270.;
     
     app.sim.add_star(new Star( 0., 0.,  0., 0., m0));
@@ -45,7 +46,7 @@ function gravity_start() {
         dists.push(d);
     }*/
     //var dists = [35., 50., 150., 160., 175., 250., 275., 300., 315., 450.];
-    var dists = [35., 150., 250.];
+    var dists = [85., 140., 230., 340., 425.];
     for (var i=0; i<dists.length; i++) {
         var d = dists[i];
         /*app.sim.add_star(create_orbiting_star(m0, d, 0.,  mz));
@@ -57,11 +58,14 @@ function gravity_start() {
         app.sim.add_star(create_orbiting_star(m0, -d/Math.sqrt(2), d/Math.sqrt(2), mz));
         app.sim.add_star(create_orbiting_star(m0, -d/Math.sqrt(2), -d/Math.sqrt(2), mz));
         app.sim.add_star(create_orbiting_star(m0, d/Math.sqrt(2), -d/Math.sqrt(2), mz));*/
-        for (var j=0; j<360; j+=15) {
-            var range = 0.7
-            var m = ((Math.random()*range*2)+(1.-range)) * mz;
+        for (var j=0; j<360; j+=a) {
+            var mrange = 0; //0.95;
+            var m = ((Math.random()*mrange*2)+(1.-mrange)) * mz;
+            var drange = 0; //0.9;
+            var dd = ((Math.random()*drange*2)+(1.-drange)) * d;
             //app.sim.add_star(create_orbiting_star(m0*1.5, d*Math.cos((Math.PI/180)*j), d*Math.sin((Math.PI/180)*j), m));
-            app.sim.add_star(create_orbiting_star(m0*(Math.log(d)/5), d*Math.cos((Math.PI/180)*j), d*Math.sin((Math.PI/180)*j), m));
+            //app.sim.add_star(create_orbiting_star(m0*(Math.log(dd)/4.0), d*Math.cos((Math.PI/180)*j), dd*Math.sin((Math.PI/180)*j), m));
+            app.sim.add_star(create_orbiting_star(m0, d*Math.cos((Math.PI/180)*j), dd*Math.sin((Math.PI/180)*j), m));
         }
         /*app.sim.add_star(create_orbiting_star(m0, d*Math.cos((Math.PI/180)*0), d*Math.sin((Math.PI/180)*0), mz));
         app.sim.add_star(create_orbiting_star(m0, d*Math.cos((Math.PI/180)*15), d*Math.sin((Math.PI/180)*15), mz));

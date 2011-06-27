@@ -95,6 +95,13 @@ GLContext.prototype.set_viewport_size = function(w, h) {
     gl.viewportHeight = h;
 }
 
+GLContext.prototype.reset = function() {
+    this._zoom = 1.;
+    this.set_viewport_size(this.true_width, this.true_height);
+    this.cx = 0.;
+    this.cy = 0.;
+}
+
 GLContext.prototype.zoom = function(n) {
     //console.log("n: " + n);
     if (n > 0) {
