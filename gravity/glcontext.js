@@ -37,6 +37,33 @@ function getShader(gl, id) {
     return shader;
 }
 
+function get_shader_js(gl, name) {
+    var source = gravity_shaders[name]["data"];
+    var type = gravity_shaders[name]["type"];
+    
+    var shader;
+    if (type == "x-shader/x-fragment") {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (type == "x-shader/x-vertex") {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+        return null;  // Unknown shader type
+    }
+    gl.shaderSource(shader, source);
+
+    // Compile the shader program
+    gl.compileShader(shader);
+
+    // See if it compiled successfully
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        alert("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+        return null;
+    }
+
+    return shader;
+    
+}
+
 //============================================================================//
 var gl = null;
 
@@ -48,8 +75,8 @@ function GLContext(canvas) {
     this.cx = 0.;
     this.cy = 0.;
     this._zoom = 1.; // _zoom is stored as the inverse of the "usual" zoom value; e.g. to zoom in, _zoom is *less* than 1
-    this._maxzoomin = 1./3.6;
-    this._minzoomout = 1./0.04;
+    this._maxzoomin = 1./gravity_config.max_zoom_in;
+    this._minzoomout = 1./gravity_config.min_zoom_out;
     this._initgl(canvas);
     this._confgl();
 }
@@ -72,11 +99,11 @@ GLContext.prototype.zoom = function(n) {
     //console.log("n: " + n);
     if (n > 0) {
         for (var i=0; i<n && this._zoom > this._maxzoomin; i++) {
-            this._zoom /= 1.1;
+            this._zoom /= gravity_config.zoom_multiplier;
         }
     } else {
         for (var i=0; i < -n && this._zoom < this._minzoomout; i++) {
-            this._zoom *= 1.1;
+            this._zoom *= gravity_config.zoom_multiplier;
         }
     }
     

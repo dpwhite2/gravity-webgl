@@ -1,0 +1,16 @@
+attribute vec3 aStarPosition;
+attribute vec4 aStarColor;
+attribute float aStarSize;
+
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
+varying vec4 vColor;
+varying float starSize;
+
+void main(void) {
+    //gl_PointSize = 8.0;
+    gl_PointSize = max(aStarSize, 3.0);
+    gl_Position = uPMatrix * uMVMatrix * vec4(aStarPosition, 1.0);
+    vColor = aStarColor;
+    starSize = aStarSize;
+}

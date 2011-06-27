@@ -23,8 +23,10 @@ StarsRenderer.prototype._init_buffers = function() {
 }
 
 StarsRenderer.prototype._init_shaders = function() {
-    var fragmentShader = getShader(gl, "shader-fs");
-    var vertexShader = getShader(gl, "shader-vs");
+    //var fragmentShader = getShader(gl, "shader-fs");
+    //var vertexShader = getShader(gl, "shader-vs");
+    var fragmentShader = get_shader_js(gl, "shader_fs_text");
+    var vertexShader = get_shader_js(gl, "shader_vs_text");
 
     // Create the shader program
     this.shaderprog = gl.createProgram();

@@ -112,7 +112,7 @@ Sim.prototype.remove_distant_stars = function() {
     for (var i=0; i<this.stars.length; i++) {
         var star = this.stars[i];
         var d = star.pos.modulus();
-        if (d > 20000.) {
+        if (d > gravity_config.star_distance_limit) {
             this.delete_star(i);
             i--;
         }
