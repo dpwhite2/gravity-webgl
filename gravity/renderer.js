@@ -11,20 +11,15 @@ function StarsRenderer() {
 StarsRenderer.prototype._init_buffers = function() {
     this.pos_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.pos_buffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.positions), gl.STATIC_DRAW);
 
     this.size_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.size_buffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.sizes), gl.STATIC_DRAW);
 
     this.color_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
-    //gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
 }
 
 StarsRenderer.prototype._init_shaders = function() {
-    //var fragmentShader = getShader(gl, "shader-fs");
-    //var vertexShader = getShader(gl, "shader-vs");
     var fragmentShader = get_shader_js(gl, "shader_fs_text");
     var vertexShader = get_shader_js(gl, "shader_vs_text");
 
@@ -70,14 +65,14 @@ StarsRenderer.prototype.calc_color = function(r) {
     }
 }
 
-StarsRenderer.prototype.update_buffers = function(sim, glctx) {
+StarsRenderer.prototype.update_buffers = function(sim, cam) {
     this.positions = [];
     this.sizes = [];
     this.colors = [];
     for (var i=0; i<sim.size(); i++) {
         var star = sim.stars[i];
         this.positions.splice(this.positions.length, 0, star.pos.elements[0], star.pos.elements[1], 0.0);
-        this.sizes.splice(this.sizes.length, 0, Math.max(star.r/glctx._zoom, 1.0));
+        this.sizes.splice(this.sizes.length, 0, Math.max(star.r/cam.get_zoom(), 1.0));
         var c = this.calc_color(star.r);
         this.colors.splice(this.colors.length, 0, c[0], c[1], c[2], 1.0);
     }
@@ -90,17 +85,12 @@ StarsRenderer.prototype.update_buffers = function(sim, glctx) {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.colors), gl.STATIC_DRAW);
 }
 
-StarsRenderer.prototype.draw_stars = function(sim, glctx) {
-    this.update_buffers(sim, glctx);
+StarsRenderer.prototype.draw_stars = function(sim, cam) {
+    this.update_buffers(sim, cam);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     
-    var perspective_matrix = makeOrtho(glctx.left(), glctx.right(), 
-                                       glctx.bottom(), glctx.top(), -1., 1.);
-    
-    /*var perspective_matrix = makeOrtho(-200, 200, 
-                                       -200, 200, -1., 1.);*/
-    var mvMatrix = loadIdentity();
-    mvMatrix = mvTranslate(mvMatrix, [-0.0, 0.0, -0.0]);
+    var perspective_matrix = cam.perspective_matrix();
+    var mvMatrix = cam.translation_matrix();
 
     gl.bindBuffer(gl.ARRAY_BUFFER, this.color_buffer);
     gl.vertexAttribPointer(this.star_color_attr, 4, gl.FLOAT, false, 0, 0);

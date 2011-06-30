@@ -65,68 +65,79 @@ function get_shader_js(gl, name) {
 }
 
 //============================================================================//
+function Camera(width, height) {
+    this.width = width;
+    this.height = height;
+    this.cx = 0.;
+    this.cy = 0.;
+    this._zoom = 1.;
+    this._maxzoomin = 1./gravity_config.max_zoom_in;
+    this._minzoomout = 1./gravity_config.min_zoom_out;
+}
+
+Camera.prototype.zoom = function(n) {
+    if (n > 0) {
+        for (var i=0; i<n && this._zoom > this._maxzoomin; i++) {
+            this._zoom /= gravity_config.zoom_multiplier;
+            this.cx *= gravity_config.zoom_multiplier;
+            this.cy *= gravity_config.zoom_multiplier;
+        }
+    } else {
+        for (var i=0; i < -n && this._zoom < this._minzoomout; i++) {
+            this._zoom *= gravity_config.zoom_multiplier;
+            this.cx /= gravity_config.zoom_multiplier;
+            this.cy /= gravity_config.zoom_multiplier;
+        }
+    }
+}
+
+Camera.prototype.get_zoom = function() {
+    return this._zoom;
+}
+
+Camera.prototype.move_viewport = function(dx, dy) {
+    this.cx += dx;
+    this.cy += dy;
+}
+
+Camera.prototype.client_to_world_coords = function(cx, cy) {
+    var x = ((cx - this.width / 2.) + this.cx) * this._zoom;
+    var y = ((this.height / 2. - cy) + this.cy) * this._zoom;
+    return [x, y];
+}
+
+Camera.prototype.perspective_matrix = function() {
+    var left = (-this.width/2.) * this._zoom;
+    var right = (this.width/2.) * this._zoom;
+    var bottom = (-this.height/2.) * this._zoom;
+    var top = (this.height/2.) * this._zoom;
+    return makeOrtho(left, right, bottom, top, -1., 1.);
+}
+
+Camera.prototype.translation_matrix = function() {
+    var mvMatrix = loadIdentity();
+    return mvTranslate(mvMatrix, [-this.cx * this._zoom, -this.cy * this._zoom, 0.0]);
+}
+
+//============================================================================//
 var gl = null;
 
 function GLContext(canvas) {
-    //this.viewport = {width:1, height:1, left:0, right:1, bottom:0, top:1}
-    //this._init_shaders();
-    this.width = 1.;
-    this.height = 1.;
-    this.cx = 0.;
-    this.cy = 0.;
-    this._zoom = 1.; // _zoom is stored as the inverse of the "usual" zoom value; e.g. to zoom in, _zoom is *less* than 1
-    this._maxzoomin = 1./gravity_config.max_zoom_in;
-    this._minzoomout = 1./gravity_config.min_zoom_out;
+    this.true_width = 1;
+    this.true_height = 1;
     this._initgl(canvas);
     this._confgl();
 }
 
-GLContext.prototype.left = function() { return -(this.width/2.) + this.cx; }
-GLContext.prototype.right = function() { return (this.width/2.) + this.cx; }
-GLContext.prototype.bottom = function() { return -(this.height/2.) + this.cy; }
-GLContext.prototype.top = function() { return (this.height/2.) + this.cy; }
-
 GLContext.prototype.set_viewport_size = function(w, h) {
     this.true_width = w;
     this.true_height = h;
-    this.width = w * this._zoom;
-    this.height = h * this._zoom;
     gl.viewportWidth = w;
     gl.viewportHeight = h;
 }
 
 GLContext.prototype.reset = function() {
-    this._zoom = 1.;
     this.set_viewport_size(this.true_width, this.true_height);
-    this.cx = 0.;
-    this.cy = 0.;
-}
-
-GLContext.prototype.zoom = function(n) {
-    //console.log("n: " + n);
-    if (n > 0) {
-        for (var i=0; i<n && this._zoom > this._maxzoomin; i++) {
-            this._zoom /= gravity_config.zoom_multiplier;
-        }
-    } else {
-        for (var i=0; i < -n && this._zoom < this._minzoomout; i++) {
-            this._zoom *= gravity_config.zoom_multiplier;
-        }
-    }
-    
-    this.width = this._zoom * this.true_width;
-    this.height = this._zoom * this.true_height;
-}
-
-GLContext.prototype.move_viewport = function(dx, dy) {
-    this.cx += dx * this._zoom;
-    this.cy += dy * this._zoom;
-}
-
-GLContext.prototype.client_to_world_coords = function(cx, cy) {
-    var x = (cx - this.true_width / 2.) * this._zoom + this.cx;
-    var y = (this.true_height/2. - cy) * this._zoom + this.cy;
-    return [x,y];
 }
 
 GLContext.prototype._initgl = function(canvas) {

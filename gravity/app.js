@@ -2,10 +2,9 @@
 
 //============================================================================//
 function App(canvas) {
-    //var canvas = document.getElementById("glcanvas");
-    
     this.glcontext = new GLContext(canvas);
     this.star_renderer = new StarsRenderer();
+    this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
     this.sim = new Sim();
     this.times = [];
     this.last_fps = 0.;
@@ -14,17 +13,22 @@ function App(canvas) {
 
 App.prototype.reset_sim = function() {
     this.glcontext.reset();
+    this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
     this.sim = new Sim();
 }
 
 App.prototype.move = function(dx, dy) {
-    this.glcontext.move_viewport(dx, dy);
+    this.cam.move_viewport(dx, dy);
+}
+
+App.prototype.zoom = function(n) {
+    this.cam.zoom(n);
 }
 
 App.prototype.do_turn = function() {
     this.add_frametime();
     this.sim.do_turn();
-    this.star_renderer.draw_stars(this.sim, this.glcontext);
+    this.star_renderer.draw_stars(this.sim, this.cam);
 }
 
 App.prototype.add_frametime = function() {
@@ -48,7 +52,7 @@ App.prototype.n_stars = function() {
 }
 
 App.prototype.current_zoom = function() {
-    return 1./this.glcontext._zoom;
+    return 1./this.cam.get_zoom();
 }
 
 //============================================================================//

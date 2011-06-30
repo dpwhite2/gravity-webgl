@@ -18,13 +18,7 @@ function create_orbiting_star(u, x, y, m) {
 }
 
 
-function gravity_start() {
-    var canvas = document.getElementById("glcanvas");
-    app = new App(canvas);
-    if (gl) {
-        setInterval(gravity_do_turn, 15);
-    }
-    
+function init_stars() {
     var v = 5.5;
     var m0 = 1000.;
     var m1 = 100.;
@@ -94,6 +88,36 @@ function gravity_start() {
     app.sim.add_star(new Star(-d/Math.sqrt(2), d/Math.sqrt(2), -v/Math.sqrt(2),-v/Math.sqrt(2), m1));
     app.sim.add_star(new Star(-d/Math.sqrt(2),-d/Math.sqrt(2),  v/Math.sqrt(2),-v/Math.sqrt(2), m1));
     app.sim.add_star(new Star( d/Math.sqrt(2),-d/Math.sqrt(2),  v/Math.sqrt(2), v/Math.sqrt(2), m1));*/
+}
+
+function init_stars_with_moon() {
+    var m0 = 10000.;
+    var m1 = 100.;
+    var m2 = 1;
+    
+    var r1 = 400.;
+    var r2 = 25.;
+    
+    app.sim.add_star(new Star( 0., 0.,  0., 0., m0));
+    var s1 = create_orbiting_star(m0, r1, 0., m1);
+    app.sim.add_star(s1);
+    var s2 = create_orbiting_star(m1, r2, 0., m2);
+    //s2.v.elements[1] *= 6.;
+    s2.pos.elements[0] = r1 + r2;
+    s2.v.elements[1] += s1.v.elements[1];
+    app.sim.add_star(s2);
+}
+
+
+function gravity_start() {
+    var canvas = document.getElementById("glcanvas");
+    app = new App(canvas);
+    if (gl) {
+        setInterval(gravity_do_turn, 15);
+    }
+    
+    //init_stars();
+    init_stars_with_moon();
        
     gravity_mouse_move_events(canvas);
     setup_event_handlers();
@@ -115,10 +139,9 @@ function gravity_mouse_move_events(canvas) {
         if (evt.button === 0) { // left button only
             if (evt.ctrlKey) {
                 evt.preventDefault();
-                var coord = app.glcontext.client_to_world_coords(evt.layerX, evt.layerY);
+                var coord = app.cam.client_to_world_coords(evt.layerX, evt.layerY);
                 star_creator = { layer_x: evt.layerX, layer_y: evt.layerY, 
                                  world_x: coord[0], world_y: coord[1]};
-                //app.sim.add_star(new Star( coord[0], coord[1],  0., 0., 10.));
             } else if (evt.shiftKey) {
                 
             } else {
@@ -165,20 +188,9 @@ function gravity_mouse_move_events(canvas) {
     }
     
     function gravity_canvas_on_mousewheel(evt) {
-        //console.log("on_mousewheel");
-        //console.log(evt);
         var delta = evt.detail ? evt.detail*(-120) : evt.wheelDelta;
-        //console.log("delta: " + delta);
-        app.glcontext.zoom(Math.round(delta/120));
+        app.zoom(Math.round(delta/120));
         evt.preventDefault();
-    }
-    
-    function gravity_window_on_resize(evt) {
-        /*var canvas = document.getElementById("glcanvas");
-        app.glcontext.set_viewport_size(canvas.clientWidth, canvas.clientHeight);
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;*/
-        //console.log("I'm here");
     }
     
     canvas.onmousedown = gravity_canvas_on_mousedown;
@@ -190,8 +202,6 @@ function gravity_mouse_move_events(canvas) {
     } else {
         canvas.addEventListener('DOMMouseScroll', gravity_canvas_on_mousewheel, false);
     }
-    window.onresize = gravity_window_on_resize;
-    gravity_window_on_resize();
 }
 
 function setup_event_handlers() {
