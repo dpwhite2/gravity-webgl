@@ -29,19 +29,6 @@ function create_orbiting_star2(u, cx, cy, x, y, m) {
 }
 
 //============================================================================//
-// function new_preset(name, func) {
-    // var inserted = false;
-    // for (var i=0; i<gravity.presets.length; i++) {
-        // if (name < gravity.presets[i].name) {
-            // gravity.presets.splice(i, 0, {name: name, func: func});
-            // inserted = true;
-        // }
-    // }
-    // if (!inserted) {
-        // gravity.presets.push({name: name, func: func});
-    // }
-// }
-
 gravity.presets = {
     twins: function(sim) {
         var m = 2500.;

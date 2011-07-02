@@ -39,8 +39,8 @@ gravity.getShader = function(gl, id) {
 }
 
 gravity.get_shader_js = function(gl, name) {
-    var source = gravity_shaders[name]["data"];
-    var type = gravity_shaders[name]["type"];
+    var source = gravity.shaders[name]["data"];
+    var type = gravity.shaders[name]["type"];
     
     var shader;
     if (type == "x-shader/x-fragment") {

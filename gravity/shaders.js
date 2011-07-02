@@ -1,4 +1,4 @@
-gravity_shaders = {
+gravity.shaders = {
 shader_fs_text: { type: "x-shader/x-fragment", data: "#ifdef GL_ES\n\
 precision highp float;\n\
 #endif\n\
@@ -32,9 +32,9 @@ uniform sampler2D uSampler;\n\
 \n\
 void main(void) {\n\
     gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));\n\
-    //gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);\n\
-    //gl_FragColor[3] = gl_FragColor[3]*0.9;\n\
-    gl_FragColor[3] = gl_FragColor[3]*0.5;\n\
+    /*if (gl_FragColor[3] < 0.3) {\n\
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);\n\
+    }*/\n\
 }" },
 shader_vs_text: { type: "x-shader/x-vertex", data: "attribute vec3 aStarPosition;\n\
 attribute vec4 aStarColor;\n\

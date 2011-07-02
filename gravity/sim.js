@@ -152,13 +152,13 @@ Sim.prototype.update_histories = function() {
 }
 
 Sim.prototype.do_turn = function() {
+    this.handle_collisions();
+    this.remove_distant_stars();
     this.calc_forces();
+    this.apply_forces();
     if (this.turn % gravity.config.history_interval == 0) {
         this.update_histories();
     }
-    this.apply_forces();
-    this.handle_collisions();
-    this.remove_distant_stars();
     this.turn++;
 }
 

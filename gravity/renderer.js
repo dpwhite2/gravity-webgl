@@ -234,9 +234,9 @@ TrailsTexRenderer.prototype._init_buffers = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bg_buffer);
     var bgrect = [ 
         0, 0, 0,
-        0, 1024, 0,
-        1024, 0, 0,
-        1024, 1024, 0
+        0, gravity.config.trails_tex_size, 0,
+        gravity.config.trails_tex_size, 0, 0,
+        gravity.config.trails_tex_size, gravity.config.trails_tex_size, 0
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(bgrect), gl.STATIC_DRAW);
     
@@ -260,19 +260,19 @@ TrailsTexRenderer.prototype._init_buffers = function() {
     gl.bindBuffer(gl.ARRAY_BUFFER, this.fader_vertex_buffer);
     var fader_coords = [
         0, 0, 0,
-        0, 1024, 0,
-        1024, 0, 0,
-        1024, 1024, 0
+        0, gravity.config.trails_tex_size, 0,
+        gravity.config.trails_tex_size, 0, 0,
+        gravity.config.trails_tex_size, gravity.config.trails_tex_size, 0
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(fader_coords), gl.STATIC_DRAW);
     
     this.fader_color_buffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, this.fader_color_buffer);
     var fader_colors = [
-        0., 0., 0., 0.01,
-        0., 0., 0., 0.01,
-        0., 0., 0., 0.01,
-        0., 0., 0., 0.01
+        0., 0., 0., gravity.config.trails_fade_rate,
+        0., 0., 0., gravity.config.trails_fade_rate,
+        0., 0., 0., gravity.config.trails_fade_rate,
+        0., 0., 0., gravity.config.trails_fade_rate
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(fader_colors), gl.STATIC_DRAW);
 }
@@ -293,18 +293,14 @@ TrailsTexRenderer.prototype._init_framebuffer = function() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
     gl.generateMipmap(gl.TEXTURE_2D);
     
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1024, 1024, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gravity.config.trails_tex_size, gravity.config.trails_tex_size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     
     this.renderbuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, this.renderbuffer);
-    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, 1024, 1024);
+    gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, gravity.config.trails_tex_size, gravity.config.trails_tex_size);
     
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, this.texture, 0);
     gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, this.renderbuffer);
-        
-    /*gl.enable(gl.BLEND);
-    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    gl.blendColor(0.,0.,0.,1.0);*/
     
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindRenderbuffer(gl.RENDERBUFFER, null);
@@ -383,10 +379,11 @@ TrailsTexRenderer.prototype.prepare_star_buffer = function(sim, cam) {
         var star = sim.stars[k];
         var color = this.calc_color(star.r);
         indexes.push(histories.length/3);
-        for (var i=0; i<star.history.length; i++) {
-            var pos = star.history[i];
+        var relvant_history = Math.min(star.history.length, 2);
+        for (var i=0; i<relvant_history; i++) {
+            var pos = star.history[star.history.length-i-1];
             histories.splice(histories.length, 0, pos.elements[0], pos.elements[1], 0.0);
-            colors.splice(colors.length, 0, color[0], color[1], color[2], 1.0);
+            colors.splice(colors.length, 0, color[0], color[1], color[2], 0.9);
         }
     }
     
@@ -398,13 +395,13 @@ TrailsTexRenderer.prototype.prepare_star_buffer = function(sim, cam) {
     return indexes; 
 }
 
-TrailsTexRenderer.prototype.fade_trails = function() {
+TrailsTexRenderer.prototype.fade_trails = function(cam) {
     gl.useProgram(this.shaderprog);
     gl.enableVertexAttribArray(this.star_history_attr);
     gl.enableVertexAttribArray(this.star_color_attr);
     
     // fade old trails
-    var perspective_matrix = makeOrtho(0, 1000, 0, 700, -1., 1.);
+    var perspective_matrix = makeOrtho(0, cam.width, 0, cam.height, -1., 1.);
     var mvMatrix = mvTranslate(loadIdentity(), [0.0, 0.0, 0.0]);
     
     gl.bindBuffer(gl.ARRAY_BUFFER, this.fader_color_buffer);
@@ -421,8 +418,8 @@ TrailsTexRenderer.prototype.draw_trails_impl = function(sim, cam) {
     gl.enableVertexAttribArray(this.star_history_attr);
     gl.enableVertexAttribArray(this.star_color_attr);
     
-    if (this.turn % 8 === 0) {
-        this.fade_trails();
+    if (this.turn % gravity.config.trails_fade_turn_interval === 0) {
+        this.fade_trails(cam);
     }
     
     // draw trails
@@ -440,7 +437,7 @@ TrailsTexRenderer.prototype.draw_trails_impl = function(sim, cam) {
     
     for (var i=0; i<sim.size(); i++) {
         var star = sim.stars[i];
-        var n = star.history.length;
+        var n = Math.min(star.history.length, 2);
         gl.drawArrays(gl.LINE_STRIP, indexes[i], n);   
     }
     
@@ -449,20 +446,9 @@ TrailsTexRenderer.prototype.draw_trails_impl = function(sim, cam) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
-var checked_framebuffer = false;
 
 TrailsTexRenderer.prototype.draw_trails = function(sim, cam) {
     gl.bindFramebuffer(gl.FRAMEBUFFER, this.framebuffer);
-    /*if (!checked_framebuffer) {
-        console.log(gl.checkFramebufferStatus(gl.FRAMEBUFFER));
-        checked_framebuffer = true;
-        var h = 20;
-        var w = 20;
-        var uarray = new Uint8Array(h*w);
-        gl.readPixels(500,350,w,h, gl.RGBA, gl.UNSIGNED_TYPE, uarray);
-        console.log(uarray.buffer);
-        //console.log(uarray.get(0));
-    }*/
     this.draw_trails_impl(sim,cam);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     
@@ -471,7 +457,7 @@ TrailsTexRenderer.prototype.draw_trails = function(sim, cam) {
     gl.enableVertexAttribArray(this.bg_coords_attr);
     gl.enableVertexAttribArray(this.tex_coord_attr);
     
-    var perspective_matrix = makeOrtho(0, 1000, 0, 700, -1., 1.);
+    var perspective_matrix = makeOrtho(0, cam.width, 0, cam.height, -1., 1.);
     var mvMatrix = mvTranslate(loadIdentity(), [0.0, 0.0, 0.0]);
     
     
