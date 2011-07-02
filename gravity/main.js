@@ -351,6 +351,15 @@ function setup_event_handlers() {
             gravity.presets[preset_select.value](app.sim);
         }
     }
+    var trails = document.getElementById("checkbox-trails");
+    trails.onchange = function(evt) {
+        console.log("trails.onchange");
+        if (trails.checked) {
+            app.show_trails = true;
+        } else {
+            app.show_trails = false;
+        }
+    }
 }
 
 //============================================================================//

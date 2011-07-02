@@ -11,6 +11,7 @@ function App(canvas) {
     this.times = [];
     this.last_fps = 0.;
     this._fps_turns = 50;  // calculate the frame rate after this many turns
+    this.show_trails = false;
 }
 
 App.prototype.reset_sim = function() {
@@ -37,7 +38,9 @@ App.prototype.do_turn = function() {
 App.prototype.render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //this.trails_renderer.draw_trails(this.sim, this.cam);
-    this.tex_trails_renderer.draw_trails(this.sim, this.cam);
+    if (this.show_trails) {
+        this.tex_trails_renderer.draw_trails(this.sim, this.cam);
+    }
     this.star_renderer.draw_stars(this.sim, this.cam);
 }
 

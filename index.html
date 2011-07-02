@@ -20,9 +20,10 @@
 
 <body onload="gravity_start()">
     <div id="controls">
-        <div><button id="button-reset">Reset</button></div>
-        <div><input type="text" id="input-mass" value="10"/></div>
-        <div><select id="select-preset"></select></div>
+        <div><button id="button-reset">Clear</button></div>
+        <div>Mass: <input type="text" id="input-mass" value="10"/></div>
+        <div>Presets: <select id="select-preset"></select></div>
+        <div>Draw trails: <input type="checkbox" id="checkbox-trails" value="enable"/></div>
     </div>
     
     <canvas id="glcanvas" width="1000" height="700">

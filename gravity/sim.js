@@ -8,7 +8,8 @@ function Star(x, y, vx, vy, m) {
     this.v = $V([vx, vy]);
     this.m = m || 1.0;
     this.F = $V([0.,0.]);
-    //this.r = 1.; // radius
+    this.r = 1.; // radius
+    this.actual_r = 1.;
     this.calc_radius();
     this.history = [];
 }
@@ -38,7 +39,8 @@ Star.prototype.apply_forces = function() {
 }
 
 Star.prototype.calc_radius = function() {
-    this.r = Math.max(Math.pow(this.m, 1./3.), 1.0);
+    this.r = Math.max(Math.pow(this.m, 1./3.)*1.5, 1.0);
+    this.actual_r = Math.max(Math.pow(this.m, 1./3.), 1.0);
 }
 
 gravity.Star = Star;
@@ -53,6 +55,7 @@ function Sim() {
 
 Sim.prototype.add_star = function(star) {
     this.stars.push(star);
+    return star;
 }
 
 Sim.prototype.delete_star = function(index) {
@@ -102,7 +105,7 @@ Sim.prototype.handle_collisions = function() {
             var ds = star0.pos.subtract(star1.pos);
             var dist = ds.modulus();  // magnitude
             // if stars are too close, collide
-            if (dist < star0.r + star1.r) {
+            if (dist < star0.actual_r + star1.actual_r) {
                 // ...delete smaller star
                 var m = star0.m + star1.m;
                 var ms = star1.m / m; // fraction of combined mass that is p1 mass

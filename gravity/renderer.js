@@ -2,6 +2,36 @@
 
 (function() {
 //============================================================================//
+
+
+gravity.calc_color = function(star) {
+    var m0 = Math.pow(2.0, 3);
+    var m1 = Math.pow(10.0, 3);
+    var m2 = Math.pow(21.0, 3);
+    var m3 = Math.pow(46.0, 3);
+    
+    var m = star.m;
+    
+    if (m < m0) {
+        return [1.0, 0.5, 0.5];
+    } 
+    else if (m < m1) {
+        var p = (m-m0) / (2*(m1-m0)) + 0.5;
+        return [1.0, p*1.0, 0.5];
+    } 
+    else if (m < m2) {
+        var p = (m-m1) / (2*(m2-m1)) + 0.5;
+        return [1.0, 1.0, p*1.0];
+    } 
+    else if (m < m3) {
+        return [0.9, 0.9, 1.0];
+    } 
+    else {
+        return [0.8, 0.8, 1.0];
+    }
+}
+
+//============================================================================//
 function StarsRenderer() {
     this._init_shaders();
     this._init_buffers();
@@ -43,27 +73,6 @@ StarsRenderer.prototype._init_shaders = function() {
     this.star_size_attr = gl.getAttribLocation(this.shaderprog, "aStarSize");
 }
 
-StarsRenderer.prototype.calc_color = function(r) {
-    if (r < 2.0) {
-        return [1.0, 0.5, 0.5];
-    } 
-    else if (r < 10.) {
-        var p = (r-2.0) / (2*(10.0-2.0)) + 0.5;
-        return [1.0, p*1.0, 0.5];
-    } 
-    else if (r < 21.) {
-        var p = (r-10.) / (2*(21.-10.)) + 0.5;
-        return [1.0, 1.0, p*1.0];
-    } 
-    else if (r < 46.) {
-        //var p = (46.) / (46.);
-        return [0.9, 0.9, 1.0];
-    } 
-    else {
-        return [0.8, 0.8, 1.0];
-    }
-}
-
 StarsRenderer.prototype.update_buffers = function(sim, cam) {
     this.positions = [];
     this.sizes = [];
@@ -72,7 +81,7 @@ StarsRenderer.prototype.update_buffers = function(sim, cam) {
         var star = sim.stars[i];
         this.positions.splice(this.positions.length, 0, star.pos.elements[0], star.pos.elements[1], 0.0);
         this.sizes.splice(this.sizes.length, 0, Math.max(star.r/cam.get_zoom(), 1.0));
-        var c = this.calc_color(star.r);
+        var c = gravity.calc_color(star);
         this.colors.splice(this.colors.length, 0, c[0], c[1], c[2], 1.0);
     }
     
@@ -145,34 +154,13 @@ TrailsRenderer.prototype._init_shaders = function() {
     this.star_color_attr = gl.getAttribLocation(this.shaderprog, "aStarColor");
 }
 
-TrailsRenderer.prototype.calc_color = function(r) {
-    if (r < 2.0) {
-        return [1.0, 0.5, 0.5];
-    } 
-    else if (r < 10.) {
-        var p = (r-2.0) / (2*(10.0-2.0)) + 0.5;
-        return [1.0, p*1.0, 0.5];
-    } 
-    else if (r < 21.) {
-        var p = (r-10.) / (2*(21.-10.)) + 0.5;
-        return [1.0, 1.0, p*1.0];
-    } 
-    else if (r < 46.) {
-        //var p = (46.) / (46.);
-        return [0.9, 0.9, 1.0];
-    } 
-    else {
-        return [0.8, 0.8, 1.0];
-    }
-}
-
 TrailsRenderer.prototype.prepare_star_buffer = function(sim, cam) {
     var histories = [];
     var colors = [];
     var indexes = [];
     for (var k=0; k<sim.size(); k++) {
         var star = sim.stars[k];
-        var color = this.calc_color(star.r);
+        var color = gravity.calc_color(star);
         indexes.push(histories.length/3);
         for (var i=0; i<star.history.length; i++) {
             var pos = star.history[i];
@@ -350,34 +338,13 @@ TrailsTexRenderer.prototype._init_tex_shaders = function() {
     this.sampler_uniform = gl.getUniformLocation(this.tex_shaderprog, "uSampler");
 }
 
-TrailsTexRenderer.prototype.calc_color = function(r) {
-    if (r < 2.0) {
-        return [1.0, 0.5, 0.5];
-    } 
-    else if (r < 10.) {
-        var p = (r-2.0) / (2*(10.0-2.0)) + 0.5;
-        return [1.0, p*1.0, 0.5];
-    } 
-    else if (r < 21.) {
-        var p = (r-10.) / (2*(21.-10.)) + 0.5;
-        return [1.0, 1.0, p*1.0];
-    } 
-    else if (r < 46.) {
-        //var p = (46.) / (46.);
-        return [0.9, 0.9, 1.0];
-    } 
-    else {
-        return [0.8, 0.8, 1.0];
-    }
-}
-
 TrailsTexRenderer.prototype.prepare_star_buffer = function(sim, cam) {
     var histories = [];
     var colors = [];
     var indexes = [];
     for (var k=0; k<sim.size(); k++) {
         var star = sim.stars[k];
-        var color = this.calc_color(star.r);
+        var color = gravity.calc_color(star);
         indexes.push(histories.length/3);
         var relvant_history = Math.min(star.history.length, 2);
         for (var i=0; i<relvant_history; i++) {
