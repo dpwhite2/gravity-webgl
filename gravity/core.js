@@ -116,8 +116,8 @@ function gravity_start() {
         setInterval(gravity_do_turn, 15);
     }
     
-    //init_stars();
-    init_stars_with_moon();
+    init_stars();
+    //init_stars_with_moon();
        
     gravity_mouse_move_events(canvas);
     setup_event_handlers();

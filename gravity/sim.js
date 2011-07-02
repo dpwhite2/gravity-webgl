@@ -10,10 +10,22 @@ function Star(x, y, vx, vy, m) {
     this.F = $V([0.,0.]);
     //this.r = 1.; // radius
     this.calc_radius();
+    this.history = [];
 }
 
 Star.prototype.add_force = function(F) {
     this.F = this.F.add(F);
+}
+
+Star.prototype.append_history = function(pos) {
+    if (this.history.length > gravity_config.max_history_size) {
+        this.history.shift();  // remove first element
+    }
+    this.history.push(pos);
+}
+
+Star.prototype.update_history = function() {
+    this.append_history(this.pos.dup());
 }
 
 Star.prototype.apply_forces = function() {
@@ -93,7 +105,14 @@ Sim.prototype.handle_collisions = function() {
                 var p = star0.v.multiply(star0.m).add( star1.v.multiply(star1.m) );
                 var v = p.multiply(1./m);
                 // create new star;
+                var history = null;
+                if (star0.m > star1.m) {
+                    history = star0.history;
+                } else {
+                    history = star1.history;
+                }
                 var s = new Star(pos.elements[0], pos.elements[1], v.elements[0], v.elements[1], m);
+                s.history = history;
                 this.stars[i] = s;
                 // delete latter star
                 this.delete_star(j);
@@ -119,11 +138,21 @@ Sim.prototype.remove_distant_stars = function() {
     }
 }
 
+Sim.prototype.update_histories = function() {
+    for (var i=0; i<this.stars.length; i++) {
+        this.stars[i].update_history();
+    }
+}
+
 Sim.prototype.do_turn = function() {
     this.calc_forces();
+    if (this.turn % gravity_config.history_interval == 0) {
+        this.update_histories();
+    }
     this.apply_forces();
     this.handle_collisions();
     this.remove_distant_stars();
+    this.turn++;
 }
 
 
