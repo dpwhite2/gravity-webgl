@@ -1,5 +1,5 @@
 
-gravity_config = {
+gravity.config = {
     max_zoom_in: 3.6,
     min_zoom_out: 0.02,
     zoom_multiplier: 1.1,

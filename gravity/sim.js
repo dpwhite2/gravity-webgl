@@ -1,5 +1,5 @@
 
-
+(function() {
 //============================================================================//
 function Star(x, y, vx, vy, m) {
     this.pos = $V([x, y]);
@@ -18,7 +18,7 @@ Star.prototype.add_force = function(F) {
 }
 
 Star.prototype.append_history = function(pos) {
-    if (this.history.length > gravity_config.max_history_size) {
+    if (this.history.length > gravity.config.max_history_size) {
         this.history.shift();  // remove first element
     }
     this.history.push(pos);
@@ -40,6 +40,9 @@ Star.prototype.apply_forces = function() {
 Star.prototype.calc_radius = function() {
     this.r = Math.max(Math.pow(this.m, 1./3.), 1.0);
 }
+
+gravity.Star = Star;
+
 
 
 //============================================================================//
@@ -102,7 +105,6 @@ Sim.prototype.handle_collisions = function() {
             if (dist < star0.r + star1.r) {
                 // ...delete smaller star
                 var m = star0.m + star1.m;
-                console.assert(m > 0.);
                 var ms = star1.m / m; // fraction of combined mass that is p1 mass
                 // new position is partway between the two stars; closer to the heavier one
                 var pos = star1.pos.subtract(star0.pos).multiply(ms).add(star0.pos);
@@ -136,7 +138,7 @@ Sim.prototype.remove_distant_stars = function() {
     for (var i=0; i<this.stars.length; i++) {
         var star = this.stars[i];
         var d = star.pos.modulus();
-        if (d > gravity_config.star_distance_limit) {
+        if (d > gravity.config.star_distance_limit) {
             this.delete_star(i);
             i--;
         }
@@ -151,7 +153,7 @@ Sim.prototype.update_histories = function() {
 
 Sim.prototype.do_turn = function() {
     this.calc_forces();
-    if (this.turn % gravity_config.history_interval == 0) {
+    if (this.turn % gravity.config.history_interval == 0) {
         this.update_histories();
     }
     this.apply_forces();
@@ -160,8 +162,9 @@ Sim.prototype.do_turn = function() {
     this.turn++;
 }
 
+gravity.Sim = Sim;
 
 //============================================================================//
-
+})();
 
 

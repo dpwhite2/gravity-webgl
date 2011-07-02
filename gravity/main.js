@@ -1,6 +1,4 @@
 
-var app;
-
 //============================================================================//
 function orbital_velocity(u, x, y) {
     // u = G*M of central mass
@@ -28,12 +26,12 @@ function orbital_velocity2(u, cx, cy, x, y) {
 
 function create_orbiting_star(u, x, y, m) {
     var v = orbital_velocity2(u, 0., 0., x, y);
-    return new Star(x, y, v[0], v[1], m);
+    return new gravity.Star(x, y, v[0], v[1], m);
 }
 
 function create_orbiting_star2(u, cx, cy, x, y, m) {
     var v = orbital_velocity2(u, cx, cy, x, y);
-    return new Star(x, y, v[0], v[1], m);
+    return new gravity.Star(x, y, v[0], v[1], m);
 }
 
 
@@ -46,7 +44,7 @@ function init_stars() {
     var a = 15.;  // must be a factor of 360 (i.e. it must divide 360 without a remainder)
     //var d = 270.;
     
-    app.sim.add_star(new Star( 0., 0.,  0., 0., m0));
+    app.sim.add_star(new gravity.Star( 0., 0.,  0., 0., m0));
     
     //var dists = [120., 205., 300., 400., 500., 600., 700., 850., 1000., 1200.];//, 1000., 1100.];
     //var dists = [120., 180., 270., 400., 600., 900., 1350., 2000., 3000., 4500.];//, 1000., 1100.];
@@ -135,15 +133,44 @@ function init_stars_random() {
     //var d = 270.;
     
     // central star
-    app.sim.add_star(new Star( 0., 0.,  0., 0., m0));
+    app.sim.add_star(new gravity.Star( 0., 0.,  0., 0., m0));
+    
     // orbiting star
-    app.sim.add_star(create_orbiting_star(m0, 600., 0., m1));
+    var star = create_orbiting_star(m0, 600., 0., m1);
+    app.sim.add_star(star);
     // moon
-    app.sim.add_star(create_orbiting_star2(m1, 600., 0., 630., 10., m2));
+    var moon = create_orbiting_star2(m1, 600., 0., 630., 10., m2);
+    moon.v.elements[0] += star.v.elements[0];
+    moon.v.elements[1] += star.v.elements[1];
+    app.sim.add_star(moon);
+    
     // orbiting star 2
-    app.sim.add_star(create_orbiting_star(m0, -1000., 0., m1));
+    star = create_orbiting_star(m0, -1200., 0., m1)
+    app.sim.add_star(star);
     // moon
-    app.sim.add_star(create_orbiting_star2(m1, -1000., 0., -1050., 0., m2));
+    moon = create_orbiting_star2(m1, -1200., 0., -1250., 0., m2);
+    moon.v.elements[0] += star.v.elements[0];
+    moon.v.elements[1] += star.v.elements[1];
+    app.sim.add_star(moon);
+    
+    // orbiting star 3
+    star = create_orbiting_star(m0, 0., 2800., m1)
+    app.sim.add_star(star);
+    // moon
+    moon = create_orbiting_star2(m1, 0., 2800., 0., 2900., m2);
+    moon.v.elements[0] += star.v.elements[0];
+    moon.v.elements[1] += star.v.elements[1];
+    app.sim.add_star(moon);
+    
+    // orbiting star 4
+    star = create_orbiting_star(m0, 0., -6000., m1)
+    app.sim.add_star(star);
+    // moon
+    moon = create_orbiting_star2(m1, 0., -6000., 0., -6150., m2);
+    moon.v.elements[0] += star.v.elements[0];
+    moon.v.elements[1] += star.v.elements[1];
+    app.sim.add_star(moon);
+    
     
     var dists = [230., 255., 340., 425., 525., 660., 800.];
     for (var i=0; i<dists.length; i++) {
@@ -179,7 +206,7 @@ function init_stars_with_moon() {
 
 function gravity_start() {
     var canvas = document.getElementById("glcanvas");
-    app = new App(canvas);
+    app = new gravity.App(canvas);
     if (gl) {
         setInterval(gravity_do_turn, 15);
     }
@@ -234,7 +261,7 @@ function gravity_mouse_move_events(canvas) {
             var vx = dx * 0.1;
             var vy = dy * 0.1;
             var m = parseInt(document.getElementById("input-mass").value);
-            app.sim.add_star(new Star( star_creator.world_x, star_creator.world_y,  vx, vy, m));
+            app.sim.add_star(new gravity.Star( star_creator.world_x, star_creator.world_y,  vx, vy, m));
             star_creator = null;
         }
     }

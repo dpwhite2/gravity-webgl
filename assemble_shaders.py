@@ -26,7 +26,7 @@ def write(destname, sources):
             yield '{0}: {{ type: "{1}", data: "{2}" }}'.format(name, ty, '\\n\\\n'.join(lines))
         
     with open(destname, 'w') as f:
-        f.write('gravity_shaders = {\n')
+        f.write('gravity.shaders = {\n')
         f.write(',\n'.join(iter_contents()))
         f.write('\n}\n')
 

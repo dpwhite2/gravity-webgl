@@ -1,13 +1,13 @@
 
-
+(function() {
 //============================================================================//
 function App(canvas) {
-    this.glcontext = new GLContext(canvas);
-    this.star_renderer = new StarsRenderer();
-    //this.trails_renderer = new TrailsRenderer();
-    this.tex_trails_renderer = new TrailsTexRenderer();
-    this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
-    this.sim = new Sim();
+    this.glcontext = new gravity.GLContext(canvas);
+    this.star_renderer = new gravity.StarsRenderer();
+    //this.trails_renderer = new gravity.TrailsRenderer();
+    this.tex_trails_renderer = new gravity.TrailsTexRenderer();
+    this.cam = new gravity.Camera(this.glcontext.true_width, this.glcontext.true_height);
+    this.sim = new gravity.Sim();
     this.times = [];
     this.last_fps = 0.;
     this._fps_turns = 50;  // calculate the frame rate after this many turns
@@ -16,8 +16,8 @@ function App(canvas) {
 App.prototype.reset_sim = function() {
     this.glcontext.reset();
     this.tex_trails_renderer.clear_trails();
-    this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
-    this.sim = new Sim();
+    this.cam = new gravity.Camera(this.glcontext.true_width, this.glcontext.true_height);
+    this.sim = new gravity.Sim();
 }
 
 App.prototype.move = function(dx, dy) {
@@ -65,7 +65,9 @@ App.prototype.current_zoom = function() {
     return 1./this.cam.get_zoom();
 }
 
-//============================================================================//
+gravity.App = App;
 
+//============================================================================//
+})();
 
 

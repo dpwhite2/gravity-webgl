@@ -1,6 +1,7 @@
 
+(function() {
 //============================================================================//
-function getShader(gl, id) {
+gravity.getShader = function(gl, id) {
     var shaderScript = document.getElementById(id);
 
     if (!shaderScript) { return null; }
@@ -37,7 +38,7 @@ function getShader(gl, id) {
     return shader;
 }
 
-function get_shader_js(gl, name) {
+gravity.get_shader_js = function(gl, name) {
     var source = gravity_shaders[name]["data"];
     var type = gravity_shaders[name]["type"];
     
@@ -71,22 +72,22 @@ function Camera(width, height) {
     this.cx = 0.;
     this.cy = 0.;
     this._zoom = 1.;
-    this._maxzoomin = 1./gravity_config.max_zoom_in;
-    this._minzoomout = 1./gravity_config.min_zoom_out;
+    this._maxzoomin = 1./gravity.config.max_zoom_in;
+    this._minzoomout = 1./gravity.config.min_zoom_out;
 }
 
 Camera.prototype.zoom = function(n) {
     if (n > 0) {
         for (var i=0; i<n && this._zoom > this._maxzoomin; i++) {
-            this._zoom /= gravity_config.zoom_multiplier;
-            this.cx *= gravity_config.zoom_multiplier;
-            this.cy *= gravity_config.zoom_multiplier;
+            this._zoom /= gravity.config.zoom_multiplier;
+            this.cx *= gravity.config.zoom_multiplier;
+            this.cy *= gravity.config.zoom_multiplier;
         }
     } else {
         for (var i=0; i < -n && this._zoom < this._minzoomout; i++) {
-            this._zoom *= gravity_config.zoom_multiplier;
-            this.cx /= gravity_config.zoom_multiplier;
-            this.cy /= gravity_config.zoom_multiplier;
+            this._zoom *= gravity.config.zoom_multiplier;
+            this.cx /= gravity.config.zoom_multiplier;
+            this.cy /= gravity.config.zoom_multiplier;
         }
     }
 }
@@ -127,8 +128,9 @@ Camera.prototype.translation_matrix = function(scaler) {
     return mvTranslate(mvMatrix, [-this.cx * this._zoom * c, -this.cy * this._zoom * c, 0.0]);
 }
 
+gravity.Camera = Camera;
+
 //============================================================================//
-var gl = null;
 
 function GLContext(canvas) {
     this.true_width = 1;
@@ -179,9 +181,10 @@ GLContext.prototype._confgl = function() {
     }
 }
 
+gravity.GLContext = GLContext;
 
 //============================================================================//
-
+})();
 
 
 

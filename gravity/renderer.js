@@ -1,4 +1,6 @@
 
+
+(function() {
 //============================================================================//
 function StarsRenderer() {
     this._init_shaders();
@@ -20,8 +22,8 @@ StarsRenderer.prototype._init_buffers = function() {
 }
 
 StarsRenderer.prototype._init_shaders = function() {
-    var fragmentShader = get_shader_js(gl, "shader_fs_text");
-    var vertexShader = get_shader_js(gl, "shader_vs_text");
+    var fragmentShader = gravity.get_shader_js(gl, "shader_fs_text");
+    var vertexShader = gravity.get_shader_js(gl, "shader_vs_text");
 
     // Create the shader program
     this.shaderprog = gl.createProgram();
@@ -104,6 +106,8 @@ StarsRenderer.prototype.draw_stars = function(sim, cam) {
     gl.drawArrays(gl.POINTS, 0, sim.size());
 }
 
+gravity.StarsRenderer = StarsRenderer;
+
 //============================================================================//
 function TrailsRenderer() {
     this._init_shaders();
@@ -121,8 +125,8 @@ TrailsRenderer.prototype._init_buffers = function() {
 }
 
 TrailsRenderer.prototype._init_shaders = function() {
-    var fragmentShader = get_shader_js(gl, "trails_shader_fs_text");
-    var vertexShader = get_shader_js(gl, "trails_shader_vs_text");
+    var fragmentShader = gravity.get_shader_js(gl, "trails_shader_fs_text");
+    var vertexShader = gravity.get_shader_js(gl, "trails_shader_vs_text");
 
     // Create the shader program
     this.shaderprog = gl.createProgram();
@@ -208,6 +212,7 @@ TrailsRenderer.prototype.draw_trails = function(sim, cam) {
     }
 }
 
+gravity.TrailsRenderer = TrailsRenderer;
 //============================================================================//
 function TrailsTexRenderer() {
     this._init_shaders();
@@ -307,8 +312,8 @@ TrailsTexRenderer.prototype._init_framebuffer = function() {
 }
 
 TrailsTexRenderer.prototype._init_shaders = function() {
-    var fragmentShader = get_shader_js(gl, "trails_shader_fs_text");
-    var vertexShader = get_shader_js(gl, "trails_shader_vs_text");
+    var fragmentShader = gravity.get_shader_js(gl, "trails_shader_fs_text");
+    var vertexShader = gravity.get_shader_js(gl, "trails_shader_vs_text");
 
     // Create the shader program
     this.shaderprog = gl.createProgram();
@@ -328,8 +333,8 @@ TrailsTexRenderer.prototype._init_shaders = function() {
 }
 
 TrailsTexRenderer.prototype._init_tex_shaders = function() {
-    var tex_fragment_shader = get_shader_js(gl, "tex_trails_shader_fs_text");
-    var tex_vertex_shader = get_shader_js(gl, "tex_trails_shader_vs_text");
+    var tex_fragment_shader = gravity.get_shader_js(gl, "tex_trails_shader_fs_text");
+    var tex_vertex_shader = gravity.get_shader_js(gl, "tex_trails_shader_vs_text");
 
     // Create the shader program
     this.tex_shaderprog = gl.createProgram();
@@ -484,6 +489,8 @@ TrailsTexRenderer.prototype.draw_trails = function(sim, cam) {
     
     this.turn++;
 }
-//============================================================================//
 
+gravity.TrailsTexRenderer = TrailsTexRenderer;
+//============================================================================//
+})();
 
