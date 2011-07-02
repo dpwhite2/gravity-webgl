@@ -12,18 +12,22 @@
     <script src="gravity/renderer.js" type="text/javascript"></script>
     <script src="gravity/glcontext.js" type="text/javascript"></script>
     <script src="gravity/app.js" type="text/javascript"></script>
+    <script src="gravity/presets.js" type="text/javascript"></script>
     <script src="gravity/main.js" type="text/javascript"></script>
 
     <link rel="stylesheet" type="text/css" href="style.css" />    
 </head>
 
 <body onload="gravity_start()">
+    <div id="controls">
+        <div><button id="button-reset">Reset</button></div>
+        <div><input type="text" id="input-mass" value="10"/></div>
+        <div><select id="select-preset"></select></div>
+    </div>
+    
     <canvas id="glcanvas" width="1000" height="700">
         WebGL is required to display this content.
     </canvas>
-    
-    <div><button id="button-reset">Reset</button></div>
-    <div><input type="text" id="input-mass" value="10"/></div>
     
     <div id="info-container">
         <div><span>FPS:</span> <span id="fps-value">0</span><div>

@@ -205,6 +205,7 @@ function init_stars_with_moon() {
 
 
 function gravity_start() {
+    init_presets_menu();
     var canvas = document.getElementById("glcanvas");
     app = new gravity.App(canvas);
     if (gl) {
@@ -226,6 +227,28 @@ function gravity_do_turn() {
     document.getElementById("zoom-value").textContent = app.current_zoom().toFixed(2);
 }
 
+//============================================================================//
+function init_presets_menu() {
+    var select = document.getElementById("select-preset");
+    var nonopt = document.createElement("option");
+    nonopt.value = "--none--";
+    nonopt.text = "-- select a preset --";
+    select.add(nonopt, null);
+    
+    var preset_names = [];
+    for (var name in gravity.presets) {
+        preset_names.push(name);
+    }
+    preset_names.sort();
+    for (var i=0; i<preset_names.length; i++) {
+        var name = preset_names[i];
+        //var func = gravity.presets[name];
+        var opt = document.createElement("option");
+        opt.value = name;
+        opt.text = name;
+        select.add(opt, null);
+    }
+}
 //============================================================================//
 function gravity_mouse_move_events(canvas) {
     var mover = null;
@@ -317,6 +340,15 @@ function setup_event_handlers() {
             // do nothing
         } else {
             evt.preventDefault();
+        }
+    }
+    
+    var preset_select = document.getElementById("select-preset");
+    preset_select.onchange = function(evt) {
+        var val = preset_select.value;
+        if (val !== "--none--") {
+            app.reset_sim();
+            gravity.presets[preset_select.value](app.sim);
         }
     }
 }

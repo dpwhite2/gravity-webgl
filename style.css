@@ -16,3 +16,9 @@ canvas {
     top: 10px;
     color: rgb(160,160,160);
 }
+
+#controls {
+    position: absolute;
+    left: 1010px;
+    top: 10px;
+}
