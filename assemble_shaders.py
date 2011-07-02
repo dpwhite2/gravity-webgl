@@ -5,6 +5,8 @@ source_config = {
     'shader_vs_text': ('x-shader/x-vertex', 'shader_sources/shader_vs.txt'),
     'trails_shader_fs_text': ('x-shader/x-fragment', 'shader_sources/trails_shader_fs.txt'),
     'trails_shader_vs_text': ('x-shader/x-vertex', 'shader_sources/trails_shader_vs.txt'),
+    'tex_trails_shader_fs_text': ('x-shader/x-fragment', 'shader_sources/tex_trails_shader_fs.txt'),
+    'tex_trails_shader_vs_text': ('x-shader/x-vertex', 'shader_sources/tex_trails_shader_vs.txt'),
 }
 
 def read():

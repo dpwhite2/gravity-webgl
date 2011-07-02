@@ -72,6 +72,10 @@ Sim.prototype.calc_forces = function() {
             var Fs = (star0.m * star1.m) / (dist * dist);  // Gmm/r^2
             // convert Force scalar to Force vector
             var F = ds.multiply(Fs / dist);
+            if (dist <= 0.) {
+                var xxx = 0.;
+            }
+            //console.assert(dist > 0.);
             star1.add_force(F);
             F.elements[0] = -F.elements[0];
             F.elements[1] = -F.elements[1];
@@ -98,6 +102,7 @@ Sim.prototype.handle_collisions = function() {
             if (dist < star0.r + star1.r) {
                 // ...delete smaller star
                 var m = star0.m + star1.m;
+                console.assert(m > 0.);
                 var ms = star1.m / m; // fraction of combined mass that is p1 mass
                 // new position is partway between the two stars; closer to the heavier one
                 var pos = star1.pos.subtract(star0.pos).multiply(ms).add(star0.pos);

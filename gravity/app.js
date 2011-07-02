@@ -4,7 +4,8 @@
 function App(canvas) {
     this.glcontext = new GLContext(canvas);
     this.star_renderer = new StarsRenderer();
-    this.trails_renderer = new TrailsRenderer();
+    //this.trails_renderer = new TrailsRenderer();
+    this.tex_trails_renderer = new TrailsTexRenderer();
     this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
     this.sim = new Sim();
     this.times = [];
@@ -14,6 +15,7 @@ function App(canvas) {
 
 App.prototype.reset_sim = function() {
     this.glcontext.reset();
+    this.tex_trails_renderer.clear_trails();
     this.cam = new Camera(this.glcontext.true_width, this.glcontext.true_height);
     this.sim = new Sim();
 }
@@ -34,7 +36,8 @@ App.prototype.do_turn = function() {
 
 App.prototype.render = function() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    this.trails_renderer.draw_trails(this.sim, this.cam);
+    //this.trails_renderer.draw_trails(this.sim, this.cam);
+    this.tex_trails_renderer.draw_trails(this.sim, this.cam);
     this.star_renderer.draw_stars(this.sim, this.cam);
 }
 

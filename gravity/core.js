@@ -3,7 +3,8 @@ var app;
 
 //============================================================================//
 function orbital_velocity(u, x, y) {
-    // u = G*M of central mass (which is assumed to be at 0,0)
+    // u = G*M of central mass
+    // cx,cy position of central mass
     // x,y = position of orbiting mass
     var d = Math.sqrt(x*x + y*y);
     var s = Math.sqrt(u / d);
@@ -12,8 +13,26 @@ function orbital_velocity(u, x, y) {
     return [-vy,vx];
 }
 
+function orbital_velocity2(u, cx, cy, x, y) {
+    // u = G*M of central mass
+    // cx,cy position of central mass
+    // x,y = position of orbiting mass
+    var dx = x - cx;
+    var dy = y - cy;
+    var d = Math.sqrt(dx*dx + dy*dy);
+    var s = Math.sqrt(u / d);
+    var vx = s * (dx/d);
+    var vy = s * (dy/d);
+    return [-vy,vx];
+}
+
 function create_orbiting_star(u, x, y, m) {
-    var v = orbital_velocity(u,x,y);
+    var v = orbital_velocity2(u, 0., 0., x, y);
+    return new Star(x, y, v[0], v[1], m);
+}
+
+function create_orbiting_star2(u, cx, cy, x, y, m) {
+    var v = orbital_velocity2(u, cx, cy, x, y);
     return new Star(x, y, v[0], v[1], m);
 }
 
@@ -90,6 +109,55 @@ function init_stars() {
     app.sim.add_star(new Star( d/Math.sqrt(2),-d/Math.sqrt(2),  v/Math.sqrt(2), v/Math.sqrt(2), m1));*/
 }
 
+function random_poisson(lambda) {
+    var L = Math.exp(-lambda);
+    var k = 0;
+    var p = 1;
+    while (p > L) {
+        k += 1;
+        p *= Math.random();
+    }
+    return k - 1;
+}
+
+function random_exponential(lambda) {
+    return -Math.log(Math.random()) / lambda;
+}
+
+function init_stars_random() {
+    var m0 = 3500.;  // central star mass
+    var m1 = 100; // orbiting star mass
+    var m2 = 1; // moon mass
+    var mz = 2.; // random orbiting star mass
+    var a = 20.;  // must be a factor of 360 (i.e. it must divide 360 without a remainder)
+    var mrange = 0.8;  // mass variability
+    var drange = 0.8;  // distance variability
+    //var d = 270.;
+    
+    // central star
+    app.sim.add_star(new Star( 0., 0.,  0., 0., m0));
+    // orbiting star
+    app.sim.add_star(create_orbiting_star(m0, 600., 0., m1));
+    // moon
+    app.sim.add_star(create_orbiting_star2(m1, 600., 0., 630., 10., m2));
+    // orbiting star 2
+    app.sim.add_star(create_orbiting_star(m0, -1000., 0., m1));
+    // moon
+    app.sim.add_star(create_orbiting_star2(m1, -1000., 0., -1050., 0., m2));
+    
+    var dists = [230., 255., 340., 425., 525., 660., 800.];
+    for (var i=0; i<dists.length; i++) {
+        var d = dists[i];
+        for (var j=0; j<360; j+=a) {
+            //var m_factor = Math.random();
+            var m_factor = random_exponential(1);
+            var m = ((m_factor*mrange*2)+(1.-mrange)) * mz;
+            var dd = ((Math.random()*drange*2)+(1.-drange)) * d;
+            app.sim.add_star(create_orbiting_star(m0, d*Math.cos((Math.PI/180)*j), dd*Math.sin((Math.PI/180)*j), m));
+        }
+    }
+}
+
 function init_stars_with_moon() {
     var m0 = 10000.;
     var m1 = 100.;
@@ -116,8 +184,9 @@ function gravity_start() {
         setInterval(gravity_do_turn, 15);
     }
     
-    init_stars();
+    //init_stars();
     //init_stars_with_moon();
+    init_stars_random();
        
     gravity_mouse_move_events(canvas);
     setup_event_handlers();
@@ -175,6 +244,7 @@ function gravity_mouse_move_events(canvas) {
             canvas.style.cursor = "auto";
             mover = null;
             star_creator = null;
+            app.tex_trails_renderer.clear_trails();
         }
     }
 
@@ -184,6 +254,7 @@ function gravity_mouse_move_events(canvas) {
             var dy = evt.layerY - mover.last_y;
             app.move(dx, dy);
             mover = { last_x: evt.layerX, last_y: evt.layerY };
+            app.tex_trails_renderer.clear_trails();
         }
     }
     
@@ -191,6 +262,7 @@ function gravity_mouse_move_events(canvas) {
         var delta = evt.detail ? evt.detail*(-120) : evt.wheelDelta;
         app.zoom(Math.round(delta/120));
         evt.preventDefault();
+        app.tex_trails_renderer.clear_trails();
     }
     
     canvas.onmousedown = gravity_canvas_on_mousedown;

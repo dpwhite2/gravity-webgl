@@ -106,17 +106,25 @@ Camera.prototype.client_to_world_coords = function(cx, cy) {
     return [x, y];
 }
 
-Camera.prototype.perspective_matrix = function() {
-    var left = (-this.width/2.) * this._zoom;
-    var right = (this.width/2.) * this._zoom;
-    var bottom = (-this.height/2.) * this._zoom;
-    var top = (this.height/2.) * this._zoom;
+Camera.prototype.perspective_matrix = function(scaler) {
+    var c = 1.0;
+    if (scaler) {
+        c = scaler;
+    }
+    var left = (-this.width/2.) * this._zoom * c;
+    var right = (this.width/2.) * this._zoom * c;
+    var bottom = (-this.height/2.) * this._zoom * c;
+    var top = (this.height/2.) * this._zoom * c;
     return makeOrtho(left, right, bottom, top, -1., 1.);
 }
 
-Camera.prototype.translation_matrix = function() {
+Camera.prototype.translation_matrix = function(scaler) {
+    var c = 1.0;
+    if (scaler) {
+        c = scaler;
+    }
     var mvMatrix = loadIdentity();
-    return mvTranslate(mvMatrix, [-this.cx * this._zoom, -this.cy * this._zoom, 0.0]);
+    return mvTranslate(mvMatrix, [-this.cx * this._zoom * c, -this.cy * this._zoom * c, 0.0]);
 }
 
 //============================================================================//
